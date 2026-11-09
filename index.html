@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg">
+<title>Messages</title>
+<style>
+:root{--ink:#20232a;--line:#ececf0;--wallpaper:#f8e9ef;--sent:#dce9ff}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:#f7f7f8;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit}button{border:0;cursor:pointer}
+#app{height:100dvh;min-height:100%;display:flex;flex-direction:column;background:#fff}
+.topbar{height:62px;flex:0 0 62px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--line);gap:12px;background:#fff;z-index:2}
+.brand{font-size:21px;font-weight:700;letter-spacing:-.4px;flex:1}
+.icon{width:36px;height:36px;display:grid;place-items:center;background:transparent;color:#59606a;border-radius:50%}
+.icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#back{display:none;margin-left:-8px}#chatHead{display:none;flex:1;align-items:center;gap:10px;min-width:0}
+.avatar{width:43px;height:43px;flex:0 0 43px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:15px;font-weight:650}
+.jane{background:linear-gradient(145deg,#d99bb1,#b96f91)}.pablo{background:linear-gradient(145deg,#7ca9d9,#4777ae)}
+.name{font-size:16px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status{font-size:11px;color:#8b9099;margin-top:2px}
+#list{flex:1;min-height:0;overflow:auto;background:#fff}
+.list-title{font-size:12px;color:#969aa3;padding:20px 19px 10px;font-weight:650;letter-spacing:.4px;text-transform:uppercase}
+.contact{display:flex;align-items:center;gap:13px;width:100%;padding:14px 18px;text-align:left;background:#fff;border-bottom:1px solid #f0f0f2}
+.contact-info{flex:1;min-width:0}.contact-name{font-weight:650;font-size:16px;margin-bottom:5px}
+.preview{color:#858a94;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.contact-time{color:#9a9ea6;font-size:11px;align-self:flex-start;padding-top:4px}
+#chat{display:none;flex:1;min-height:0;flex-direction:column}
+#messages{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:17px 13px 18px;background:var(--wallpaper);scroll-behavior:smooth}
+.day{display:flex;justify-content:center;margin:5px 0 17px}.day span{font-size:11px;color:#85838a;background:rgba(255,255,255,.75);padding:5px 11px;border-radius:20px}
+.row{display:flex;margin:7px 0}.row.out{justify-content:flex-end}
+.bubble{max-width:min(82%,340px);padding:10px 12px 7px;border-radius:17px;font-size:14px;line-height:1.38;overflow-wrap:anywhere;box-shadow:0 1px 1px rgba(30,30,40,.035)}
+.row.in .bubble{background:#fff;border-bottom-left-radius:5px}.row.out .bubble{background:var(--sent);border-bottom-right-radius:5px}
+.time{display:block;text-align:right;font-size:10px;color:#8c9099;margin-top:4px}
+.composer-wrap{flex:0 0 auto;padding:9px 10px calc(9px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+.composer{display:flex;align-items:flex-end;gap:8px}
+.attach{width:34px;height:40px;display:grid;place-items:center;color:#7d838d;background:transparent;flex:0 0 34px}
+.attach svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+#message{display:block;flex:1;min-width:0;min-height:40px;max-height:112px;resize:none;border:1px solid #e5e6e9;border-radius:21px;background:#fafafb;padding:10px 14px;font-size:16px;line-height:20px;color:#252832;outline:none;overflow-y:auto;-webkit-appearance:none;appearance:none}
+#message:focus{border-color:#c9cdd5;background:#fff}
+#send{width:39px;height:39px;flex:0 0 39px;border-radius:50%;display:grid;place-items:center;background:#3978c8;color:#fff;opacity:.45}
+#send.enabled{opacity:1}#send svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(min-width:700px){body{display:grid;place-items:center;background:#e9eaed}#app{width:min(100vw,430px);height:min(100dvh,900px);border-radius:22px;overflow:hidden;box-shadow:0 8px 36px #0002}}
+</style>
+</head>
+<body>
+<div id="app">
+<header class="topbar">
+<button class="icon" id="back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+<div class="brand" id="listHeading">Messages</div>
+<div id="chatHead"><div id="headAvatar" class="avatar jane">JW</div><div style="min-width:0"><div class="name" id="headName">Jane Wilson</div><div class="status">online</div></div></div>
+<button class="icon" aria-label="More options"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/></svg></button>
+</header>
+<main id="list">
+<div class="list-title">Conversations</div>
+<button class="contact" data-id="jane"><div class="avatar jane">JW</div><div class="contact-info"><div class="contact-name">Jane Wilson</div><div class="preview">Perfect, thanks! Looking forward to it.</div></div><div class="contact-time">22:15</div></button>
+<button class="contact" data-id="pablo"><div class="avatar pablo">PG</div><div class="contact-info"><div class="contact-name">Pablo García</div><div class="preview">Tenemos que ir algún día.</div></div><div class="contact-time">20:43</div></button>
+</main>
+<section id="chat"><div id="messages" aria-live="polite"></div>
+<div class="composer-wrap"><form class="composer" id="form">
+<button class="attach" type="button" aria-label="Attach"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+<textarea id="message" rows="1" enterkeyhint="send" autocomplete="off" aria-label="Message"></textarea>
+<button id="send" type="submit" aria-label="Send" disabled><svg viewBox="0 0 24 24"><path d="M4 12 20 4l-5 16-3-7-8-1Z"/><path d="m12 13 8-9"/></svg></button>
+</form></div></section>
+</div>
+<script>
+const data={
+jane:{name:"Jane Wilson",initials:"JW",avatar:"jane",wall:"#f8e9ef",groups:[
+["Monday, 2 November",[
+["in","Have you bought Emma's birthday present yet?","10:24"],["out","Not yet! I have absolutely no idea what to get her.","10:26"],["in","She mentioned wanting a nice handbag the other day.","10:27"],["out","That's actually a good idea. I'll have a look this afternoon.","10:29"]]],
+["Wednesday, 4 November",[
+["out","Just got back from the cinema. The film was brilliant!","21:38"],["in","You always say that! Was it really that good? 😂","21:40"],["out","Honestly, you need to watch it. I'll tell you all about it next time.","21:42"],["in","Deal. I'm off to bed now. Good night! x","21:46"]]],
+["Friday, 6 November",[
+["in","Don't forget we're meeting at 19:00 tomorrow. I've booked the table!","22:12"],["out","Perfect, thanks! Looking forward to it.","22:15"]]]]},
+pablo:{name:"Pablo García",initials:"PG",avatar:"pablo",wall:"#e8f0fb",groups:[
+["Domingo, 1 de noviembre",[
+["in","¿Viste el partido ayer?","18:32"],["out","¡Sí! Menudo partidazo. Pensaba que iban a perder.","18:34"],["in","¡El gol en el último minuto fue increíble!","18:35"],["out","¡Casi me caigo del sofá! 😂","18:37"]]],
+["Miércoles, 4 de noviembre",[
+["in","Estoy pensando en hacer una escapada el mes que viene.","12:18"],["out","¿Tienes pensado algún sitio?","12:20"],["in","Quizás Córdoba o Sevilla. Hace años que no voy a ninguna de las dos.","12:22"],["out","Las dos están genial. Yo elegiría Córdoba para pasar el fin de semana.","12:25"]]],
+["Viernes, 6 de noviembre",[
+["in","¿Has visto las fotos que te mandé de la playa?","20:39"],["out","¡Sí! ¡Qué sitio tan bonito! ¿Dónde está?","20:41"],["in","Cerca de Nerja. Tenemos que ir algún día.","20:43"]]]]}
+};
+const list=document.getElementById("list"),chat=document.getElementById("chat"),back=document.getElementById("back"),listHeading=document.getElementById("listHeading"),chatHead=document.getElementById("chatHead"),messages=document.getElementById("messages"),input=document.getElementById("message"),send=document.getElementById("send");
+let current=null;
+function addMessage(dir,text,time){const row=document.createElement("div");row.className="row "+dir;const bubble=document.createElement("div");bubble.className="bubble";const content=document.createElement("span");content.textContent=text;const stamp=document.createElement("span");stamp.className="time";stamp.textContent=time||new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit"}).format(new Date());bubble.append(content,stamp);row.append(bubble);messages.append(row)}
+function openChat(id){current=id;const c=data[id];document.documentElement.style.setProperty("--wallpaper",c.wall);document.getElementById("headAvatar").className="avatar "+c.avatar;document.getElementById("headAvatar").textContent=c.initials;document.getElementById("headName").textContent=c.name;messages.replaceChildren();c.groups.forEach(g=>{const d=document.createElement("div");d.className="day";const s=document.createElement("span");s.textContent=g[0];d.append(s);messages.append(d);g[1].forEach(m=>addMessage(m[0],m[1],m[2]))});list.style.display="none";listHeading.style.display="none";chat.style.display="flex";chatHead.style.display="flex";back.style.display="grid";input.value="";input.style.height="40px";updateSend();requestAnimationFrame(()=>messages.scrollTop=messages.scrollHeight)}
+function showList(){current=null;chat.style.display="none";chatHead.style.display="none";back.style.display="none";listHeading.style.display="block";list.style.display="block";input.blur()}
+function updateSend(){const ok=!!input.value.trim();send.disabled=!ok;send.classList.toggle("enabled",ok)}
+document.querySelectorAll("[data-id]").forEach(b=>b.addEventListener("click",()=>openChat(b.dataset.id)));
+back.addEventListener("click",showList);
+input.addEventListener("input",()=>{input.style.height="40px";input.style.height=Math.min(input.scrollHeight,112)+"px";updateSend()});
+document.getElementById("form").addEventListener("submit",e=>{e.preventDefault();const text=input.value.trim();if(!text||!current)return;addMessage("out",text);input.value="";input.style.height="40px";updateSend();requestAnimationFrame(()=>messages.scrollTop=messages.scrollHeight)});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
+}
+</script>
+</body></html>
