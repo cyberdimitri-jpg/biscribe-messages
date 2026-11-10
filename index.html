@@ -18,7 +18,7 @@ button,input,textarea{font:inherit}button{border:0;cursor:pointer}
 .icon{width:36px;height:36px;display:grid;place-items:center;background:transparent;color:#59606a;border-radius:50%}
 .icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #back{display:none;margin-left:-8px}#chatHead{display:none;flex:1;align-items:center;gap:10px;min-width:0}
-.avatar{width:43px;height:43px;flex:0 0 43px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:15px;font-weight:650}
+.avatar{width:43px;height:43px;flex:0 0 43px;border-radius:50%;display:block;object-fit:cover;background:#eee}
 .jane{background:linear-gradient(145deg,#d99bb1,#b96f91)}.pablo{background:linear-gradient(145deg,#7ca9d9,#4777ae)}
 .name{font-size:16px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .status{font-size:11px;color:#8b9099;margin-top:2px}
@@ -51,13 +51,13 @@ button,input,textarea{font:inherit}button{border:0;cursor:pointer}
 <header class="topbar">
 <button class="icon" id="back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
 <div class="brand" id="listHeading">Messages</div>
-<div id="chatHead"><div id="headAvatar" class="avatar jane">JW</div><div style="min-width:0"><div class="name" id="headName">Jane Wilson</div><div class="status">online</div></div></div>
+<div id="chatHead"><img id="headAvatar" class="avatar" src="./jane.jpg" alt="Jane Wilson"><div style="min-width:0"><div class="name" id="headName">Jane Wilson</div><div class="status">online</div></div></div>
 <button class="icon" aria-label="More options"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/></svg></button>
 </header>
 <main id="list">
 <div class="list-title">Conversations</div>
-<button class="contact" data-id="jane"><div class="avatar jane">JW</div><div class="contact-info"><div class="contact-name">Jane Wilson</div><div class="preview">Perfect, thanks! Looking forward to it.</div></div><div class="contact-time">22:15</div></button>
-<button class="contact" data-id="pablo"><div class="avatar pablo">PG</div><div class="contact-info"><div class="contact-name">Pablo García</div><div class="preview">Tenemos que ir algún día.</div></div><div class="contact-time">20:43</div></button>
+<button class="contact" data-id="jane"><img class="avatar" src="./jane.jpg" alt=""><div class="contact-info"><div class="contact-name">Jane Wilson</div><div class="preview">Perfect, thanks! Looking forward to it.</div></div><div class="contact-time">22:15</div></button>
+<button class="contact" data-id="pablo"><img class="avatar" src="./pablo.jpg" alt=""><div class="contact-info"><div class="contact-name">Pablo García</div><div class="preview">Tenemos que ir algún día.</div></div><div class="contact-time">20:43</div></button>
 </main>
 <section id="chat"><div id="messages" aria-live="polite"></div>
 <div class="composer-wrap"><form class="composer" id="form">
@@ -86,7 +86,7 @@ pablo:{name:"Pablo García",initials:"PG",avatar:"pablo",wall:"#e8f0fb",groups:[
 const list=document.getElementById("list"),chat=document.getElementById("chat"),back=document.getElementById("back"),listHeading=document.getElementById("listHeading"),chatHead=document.getElementById("chatHead"),messages=document.getElementById("messages"),input=document.getElementById("message"),send=document.getElementById("send");
 let current=null;
 function addMessage(dir,text,time){const row=document.createElement("div");row.className="row "+dir;const bubble=document.createElement("div");bubble.className="bubble";const content=document.createElement("span");content.textContent=text;const stamp=document.createElement("span");stamp.className="time";stamp.textContent=time||new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit"}).format(new Date());bubble.append(content,stamp);row.append(bubble);messages.append(row)}
-function openChat(id){current=id;const c=data[id];document.documentElement.style.setProperty("--wallpaper",c.wall);document.getElementById("headAvatar").className="avatar "+c.avatar;document.getElementById("headAvatar").textContent=c.initials;document.getElementById("headName").textContent=c.name;messages.replaceChildren();c.groups.forEach(g=>{const d=document.createElement("div");d.className="day";const s=document.createElement("span");s.textContent=g[0];d.append(s);messages.append(d);g[1].forEach(m=>addMessage(m[0],m[1],m[2]))});list.style.display="none";listHeading.style.display="none";chat.style.display="flex";chatHead.style.display="flex";back.style.display="grid";input.value="";input.style.height="40px";updateSend();requestAnimationFrame(()=>messages.scrollTop=messages.scrollHeight)}
+function openChat(id){current=id;const c=data[id];document.documentElement.style.setProperty("--wallpaper",c.wall);document.getElementById("headAvatar").className="avatar";document.getElementById("headAvatar").src="./"+id+".jpg";document.getElementById("headAvatar").alt=c.name;document.getElementById("headName").textContent=c.name;messages.replaceChildren();c.groups.forEach(g=>{const d=document.createElement("div");d.className="day";const s=document.createElement("span");s.textContent=g[0];d.append(s);messages.append(d);g[1].forEach(m=>addMessage(m[0],m[1],m[2]))});list.style.display="none";listHeading.style.display="none";chat.style.display="flex";chatHead.style.display="flex";back.style.display="grid";input.value="";input.style.height="40px";updateSend();requestAnimationFrame(()=>messages.scrollTop=messages.scrollHeight)}
 function showList(){current=null;chat.style.display="none";chatHead.style.display="none";back.style.display="none";listHeading.style.display="block";list.style.display="block";input.blur()}
 function updateSend(){const ok=!!input.value.trim();send.disabled=!ok;send.classList.toggle("enabled",ok)}
 document.querySelectorAll("[data-id]").forEach(b=>b.addEventListener("click",()=>openChat(b.dataset.id)));
